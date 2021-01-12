@@ -1,0 +1,14 @@
+FROM ubuntu:18.04 as installstage
+ARG SECRETPASSWORD
+
+COPY install-some-prerequisites.sh .
+RUN chmod +x install-some-prerequisites.sh
+RUN ["./install-some-prerequisites.sh", "${SECRETPASSWORD}"]
+
+FROM ubuntu:18.04 as runstage
+# COPY --from=installstage /opt/othersources /opt/othersources
+
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
+ENTRYPOINT [ "./entrypoint.sh" ]
