@@ -66,7 +66,7 @@ IMAGE          CREATED        CREATED BY                                      SI
 In our project we need access to some internal sources in a private repository, to install some prerequisites.
 After the installation, we don't need access to these repositories anymore, and therefore we don't need the password anymore.
 
-> With simple one stage dockerfile, we keep those credentials in the history. And this is a big security thread.
+> With simple one stage dockerfile, we keep those credentials in the history. And this is a big security threat.
 > It would enable everyone with access to the container access to retrieve the password.
 
 We can avoid this problem with the following approach:
@@ -120,7 +120,7 @@ We can avoid this problem with the following approach:
 
 ## Summary
 
-Using multistage builds has a lot of advantages. One of them is keeping secrets in earlier stages secret in later stages.
+Using multistage builds has a lot of advantages. One of them is keeping secrets in earlier stages out of the docker history.
 
 ## Links
 
