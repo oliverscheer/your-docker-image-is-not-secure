@@ -4,7 +4,7 @@ This title is very sensational, and should be better called:
 > Multistage docker builds to avoid storing sensitive data in container image
 
 During a recent project, our team recognized some challenges when you work with arguments passed to docker build process.
-When you pass arguments to docker build via --build-arg and use them in the docker file, those
+When you pass arguments to docker build via `--build-arg` and use them in the docker file, those
 are persisted in the docker history and can be retrieved by everyone.
 
 ## The Problem
