@@ -1,9 +1,9 @@
 FROM ubuntu:18.04 as installstage
 ARG SECRETPASSWORD
 
-COPY install-some-prerequisites.sh .
-RUN chmod +x install-some-prerequisites.sh
-RUN ["./install-some-prerequisites.sh", "${SECRETPASSWORD}"]
+COPY install_prerequisities.sh .
+RUN chmod +x install_prerequisities.sh
+RUN ["./install_prerequisities.sh", "${SECRETPASSWORD}"]
 
 FROM ubuntu:18.04 as runstage
 # COPY --from=installstage /opt/othersources /opt/othersources

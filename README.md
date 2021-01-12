@@ -1,10 +1,11 @@
+# Your Docker Image is Unsecure! Or why you should think about Multistage builds with Docker when using secrets in docker build-args
 
-This title is very sensational, and should be better called:  
+This title is very sensational, and should be better called:
 > Multistage docker builds to avoid storing sensitive data in container image
 
 During a recent project, our team recognized some challenges when you work with arguments passed to docker build process.
 When you pass arguments to docker build via `--build-arg` and use them in the docker file, those
-are persisted in the docker history and can be retrieved by everyone.
+are persisted in the docker history and can be retrieved by everyone. 
 
 ## The Problem
 
@@ -16,9 +17,9 @@ FROM ubuntu:18.04
 ARG SECRETPASSWORD
 
 # Steps to install some prerequisites from an internal source which requires a SECRETPASSWORD to access
-COPY install-some-prerequisites.sh . 
-RUN chmod +x install-some-prerequisites.sh 
-RUN ["./install-some-prerequisites.sh", "${SECRETPASSWORD}"] 
+COPY install_prerequisities.sh . 
+RUN chmod +x install_prerequisities.sh 
+RUN ["./install_prerequisities.sh", "${SECRETPASSWORD}"] 
 
 COPY entrypoint.sh . 
 
@@ -27,7 +28,7 @@ ENTRYPOINT [ "./entrypoint.sh" ]
 ```
 
 The critical line is the line starting with `ARG`. Everything else is only for demonstrative purposes.  
-The line with the `install-some-prerequisites.sh` file is mandatory to install requirements that are not public available, for example special private packages.
+The line with the `install_prerequisities.sh` file is mandatory to install requirements that are not public available, for example special private packages.
 
 You can build the image with the following command, where you pass a secret password (P@ssw0rd) to Docker with the `--builad-arg` argument. You may need `--build-arg` to retrieve some packages from internal/local/remote/non-public repositories.
 
@@ -48,7 +49,7 @@ IMAGE          CREATED        CREATED BY                                      SI
 577ef3504b21   14 hours ago   ENTRYPOINT ["./entrypoint.sh"]                  0B        buildkit.dockerfile.v0
 <missing>      14 hours ago   RUN |1 SECRETPASSWORD=P@assw0rd ./install-so…   0B        buildkit.dockerfile.v0
 <missing>      14 hours ago   RUN |1 SECRETPASSWORD=P@assw0rd /bin/sh -c c…   74B       buildkit.dockerfile.v0
-<missing>      14 hours ago   COPY install-some-prerequisites.sh . # build…   74B       buildkit.dockerfile.v0
+<missing>      14 hours ago   COPY install_prerequisities.sh . # build…   74B       buildkit.dockerfile.v0
 <missing>      14 hours ago   ARG SECRETPASSWORD                              0B        buildkit.dockerfile.v0
 <missing>      6 weeks ago    /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B        
 <missing>      6 weeks ago    /bin/sh -c mkdir -p /run/systemd && echo 'do…   7B        
@@ -76,9 +77,9 @@ We can avoid this problem with the following approach:
     FROM ubuntu:18.04 as installstage
     ARG SECRETPASSWORD
 
-    COPY install-some-prerequisites.sh .
-    RUN chmod +x install-some-prerequisites.sh
-    RUN ["./install-some-prerequisites.sh", "${SECRETPASSWORD}"]
+    COPY install_prerequisities.sh .
+    RUN chmod +x install_prerequisities.sh
+    RUN ["./install_prerequisities.sh", "${SECRETPASSWORD}"]
 
     FROM ubuntu:18.04 as runstage
     # COPY --from=installstage /opt/othersources /opt/othersources
