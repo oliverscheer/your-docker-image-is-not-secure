@@ -1,4 +1,3 @@
-# Your Docker Image Is Not Secure
 
 This title is very sensational, and should be better called:  
 > Multistage docker builds to avoid storing sensitive data in container image
@@ -9,14 +8,14 @@ are persisted in the docker history and can be retrieved by everyone.
 
 ## The Problem
 
-Imagine you have the following dockerfile ([Sourcefile](problem/dockerfile)):
+Imagine you have the following Dockerfile ([Sourcefile](problem/dockerfile)):
 
 ```dockerfile
 FROM ubuntu:18.04
 
 ARG SECRETPASSWORD
 
-# Steps to install some prerequisites from an internal source with requires a SECRETPASSWORD to access
+# Steps to install some prerequisites from an internal source which requires a SECRETPASSWORD to access
 COPY install-some-prerequisites.sh . 
 RUN chmod +x install-some-prerequisites.sh 
 RUN ["./install-some-prerequisites.sh", "${SECRETPASSWORD}"] 
@@ -27,22 +26,22 @@ COPY entrypoint.sh .
 ENTRYPOINT [ "./entrypoint.sh" ]
 ```
 
-The critical line the line starting with `ARG`. Everything else is only for demostration purpose.  
-The line with the `install-some-prerequisites.sh` file is required to install requirements that are not public available, for example special private packages.
+The critical line is the line starting with `ARG`. Everything else is only for demonstrative purposes.  
+The line with the `install-some-prerequisites.sh` file is mandatory to install requirements that are not public available, for example special private packages.
 
-You can build the image with the following command, where you pass a secret password (P@ssw0rd) to docker with the `--builad-arg` argument. You may need `--build-arg` for retrieve some packages from internal/local/remote/non-public repositories.
+You can build the image with the following command, where you pass a secret password (P@ssw0rd) to Docker with the `--builad-arg` argument. You may need `--build-arg` to retrieve some packages from internal/local/remote/non-public repositories.
 
 ```bash
 docker build -t myunsecureimage --build-arg SECRETPASSWORD=P@assw0rd .
 ```
 
-You publish this image to any repository for usage by others. Those "others" can now retrieve important data from your image with the `docker history` [command](https://docs.docker.com/engine/reference/commandline/history/):
+Assume you publish this image to any repository for usage by others, those "others" can now retrieve important data from your image with the `docker history` [command](https://docs.docker.com/engine/reference/commandline/history/):
 
 ```bash
 docker history myunsecureimage:latest
 ```
 
-The Output will look similar to this:
+The output will look similar to this:
 
 ```text
 IMAGE          CREATED        CREATED BY                                      SIZE      COMMENT
@@ -59,15 +58,15 @@ IMAGE          CREATED        CREATED BY                                      SI
 ...
 ```
 
-> The "secret" password isn't that secret anymore in this history of the docker image.
+> The "secret" password isn't that secret anymore, as it appears in the history of the docker image.
 
 ## The Solution
 
 In our project we need access to some internal sources in a private repository, to install some prerequisites.
 After the installation, we don't need access to these repositories anymore, and therefore we don't need the password anymore.
 
-> With simple one stage dockerfile, we keep those credentials in the history. And this is a big security threat.
-> It would enable everyone with access to the container access to retrieve the password.
+> With a simple one stage Dockerfile, we keep those credentials in the history. And this is a big security threat.
+> It would allow everyone with access to the container access to retrieve the password.
 
 We can avoid this problem with the following approach:
 
@@ -116,7 +115,7 @@ We can avoid this problem with the following approach:
     <missing>      6 weeks ago    /bin/sh -c #(nop) ADD file:6ef542de9959c3061…   63.3MB    
     ```
 
-    > You don't the secret password here.
+    > You don't see the secret password anymore.
 
 ## Summary
 
